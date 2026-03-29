@@ -30,11 +30,11 @@ npm install @nestjs/common @nestjs/microservices reflect-metadata rxjs
 
 Contracts describe the messages exchanged between services. There are three kinds:
 
-| Type | Purpose | Has response? |
-|------|---------|---------------|
-| `Command` | Write operation (request/response) | Yes |
-| `Query` | Read operation (request/response) | Yes |
-| `Event` | Notification (fire-and-forget) | No |
+| Type      | Purpose                            | Has response? |
+| --------- | ---------------------------------- | ------------- |
+| `Command` | Write operation (request/response) | Yes           |
+| `Query`   | Read operation (request/response)  | Yes           |
+| `Event`   | Notification (fire-and-forget)     | No            |
 
 ```ts
 // contracts/user.contracts.ts
@@ -120,9 +120,7 @@ export class OrderService {
   }
 
   async createOrder(userId: string) {
-    const user = await firstValueFrom(
-      this.users.send('user.get', { id: userId }),
-    );
+    const user = await firstValueFrom(this.users.send('user.get', { id: userId }));
 
     this.users.emit('user.created', {
       userId: user.id,
@@ -194,9 +192,7 @@ mock.setResponse('user.get', {
 const user = await firstValueFrom(mock.send('user.get', { id: '42' }));
 // user.id === '42'
 
-expect(mock.messages).toEqual([
-  { type: 'send', pattern: 'user.get', payload: { id: '42' } },
-]);
+expect(mock.messages).toEqual([{ type: 'send', pattern: 'user.get', payload: { id: '42' } }]);
 ```
 
 For integration tests, `TestContractModule` swaps real clients for mocks:
@@ -209,11 +205,7 @@ import type { UserContracts } from './contracts/user.contracts';
 const mock = new MockTypedClient<UserContracts>();
 
 const module = await Test.createTestingModule({
-  imports: [
-    TestContractModule.register([
-      { name: 'USER_SERVICE', mock },
-    ]),
-  ],
+  imports: [TestContractModule.register([{ name: 'USER_SERVICE', mock }])],
   providers: [OrderService],
 }).compile();
 ```
@@ -318,39 +310,39 @@ import type {
   QueriesOf,
 } from '@jdevel/tnest';
 
-type Payload = PayloadOf<UserContracts['user.create']>;   // CreateUserDto
-type Response = ResponseOf<UserContracts['user.create']>;  // User
-type Cmds = CommandPatterns<UserContracts>;                 // 'user.create'
-type Evts = EventPatterns<UserContracts>;                  // 'user.created'
-type Qrys = QueryPatterns<UserContracts>;                  // 'user.get'
-type Sendable = SendablePatterns<UserContracts>;            // 'user.create' | 'user.get'
+type Payload = PayloadOf<UserContracts['user.create']>; // CreateUserDto
+type Response = ResponseOf<UserContracts['user.create']>; // User
+type Cmds = CommandPatterns<UserContracts>; // 'user.create'
+type Evts = EventPatterns<UserContracts>; // 'user.created'
+type Qrys = QueryPatterns<UserContracts>; // 'user.get'
+type Sendable = SendablePatterns<UserContracts>; // 'user.create' | 'user.get'
 ```
 
 ## API Reference
 
-| Export | Kind | Description |
-|--------|------|-------------|
-| `TnestModule` | Module | Dynamic module with `forRoot` / `forRootAsync` |
-| `TypedClient` | Class | Type-safe wrapper around `ClientProxy` |
-| `TypedClientFactory` | Service | Creates `TypedClient` instances |
-| `TypedMessagePattern` | Decorator | Typed `@MessagePattern` for commands/queries |
-| `TypedEventPattern` | Decorator | Typed `@EventPattern` for events |
-| `MockTypedClient` | Class | Test double that records messages |
-| `TestContractModule` | Module | Registers mock clients for testing |
-| `ValidateContract` | Decorator | Opt-in runtime payload validation |
-| `getClientToken` | Function | Returns injection token for a named client |
-| `defineRegistry` | Function | Builder helper for defining contract registries |
-| `command` / `event` / `query` | Functions | Builder helpers for individual contracts |
-| `Command` / `Event` / `Query` | Type | Contract type interfaces |
-| `ContractRegistry` | Type | Base type for a registry of contracts |
-| `PayloadOf` / `ResponseOf` / `PatternOf` | Type | Extract parts of a contract |
-| `CommandsOf` / `EventsOf` / `QueriesOf` | Type | Filter registry by contract kind |
-| `CommandPatterns` / `EventPatterns` / `QueryPatterns` | Type | Pattern string unions by kind |
-| `SendablePatterns` | Type | Union of command + query patterns |
-| `ContractValidator` | Interface | Implement for runtime validation |
-| `PayloadSerializer` / `PayloadDeserializer` | Interface | Implement for custom serialization |
-| `CONTRACT_VALIDATOR` | Token | Injection token for validator |
-| `PAYLOAD_SERIALIZER` / `PAYLOAD_DESERIALIZER` | Token | Injection tokens for serialization |
+| Export                                                | Kind      | Description                                     |
+| ----------------------------------------------------- | --------- | ----------------------------------------------- |
+| `TnestModule`                                         | Module    | Dynamic module with `forRoot` / `forRootAsync`  |
+| `TypedClient`                                         | Class     | Type-safe wrapper around `ClientProxy`          |
+| `TypedClientFactory`                                  | Service   | Creates `TypedClient` instances                 |
+| `TypedMessagePattern`                                 | Decorator | Typed `@MessagePattern` for commands/queries    |
+| `TypedEventPattern`                                   | Decorator | Typed `@EventPattern` for events                |
+| `MockTypedClient`                                     | Class     | Test double that records messages               |
+| `TestContractModule`                                  | Module    | Registers mock clients for testing              |
+| `ValidateContract`                                    | Decorator | Opt-in runtime payload validation               |
+| `getClientToken`                                      | Function  | Returns injection token for a named client      |
+| `defineRegistry`                                      | Function  | Builder helper for defining contract registries |
+| `command` / `event` / `query`                         | Functions | Builder helpers for individual contracts        |
+| `Command` / `Event` / `Query`                         | Type      | Contract type interfaces                        |
+| `ContractRegistry`                                    | Type      | Base type for a registry of contracts           |
+| `PayloadOf` / `ResponseOf` / `PatternOf`              | Type      | Extract parts of a contract                     |
+| `CommandsOf` / `EventsOf` / `QueriesOf`               | Type      | Filter registry by contract kind                |
+| `CommandPatterns` / `EventPatterns` / `QueryPatterns` | Type      | Pattern string unions by kind                   |
+| `SendablePatterns`                                    | Type      | Union of command + query patterns               |
+| `ContractValidator`                                   | Interface | Implement for runtime validation                |
+| `PayloadSerializer` / `PayloadDeserializer`           | Interface | Implement for custom serialization              |
+| `CONTRACT_VALIDATOR`                                  | Token     | Injection token for validator                   |
+| `PAYLOAD_SERIALIZER` / `PAYLOAD_DESERIALIZER`         | Token     | Injection tokens for serialization              |
 
 ## License
 

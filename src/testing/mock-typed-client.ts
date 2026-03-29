@@ -14,9 +14,10 @@ interface RecordedMessage {
   payload: unknown;
 }
 
-export class MockTypedClient<TRegistry extends ContractRegistry>
-  implements Pick<TypedClient<TRegistry>, 'send' | 'emit' | 'connect' | 'close'>
-{
+export class MockTypedClient<TRegistry extends ContractRegistry> implements Pick<
+  TypedClient<TRegistry>,
+  'send' | 'emit' | 'connect' | 'close'
+> {
   private readonly _messages: RecordedMessage[] = [];
   private readonly _responses = new Map<string, unknown>();
 

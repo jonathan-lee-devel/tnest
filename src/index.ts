@@ -48,7 +48,11 @@ export { CONTRACT_VALIDATOR } from './validation';
 export type { ContractValidator } from './validation';
 
 // Serialization
-export { DefaultPayloadSerializer, PAYLOAD_SERIALIZER, PAYLOAD_DESERIALIZER } from './serialization';
+export {
+  DefaultPayloadSerializer,
+  PAYLOAD_SERIALIZER,
+  PAYLOAD_DESERIALIZER,
+} from './serialization';
 export type { PayloadSerializer, PayloadDeserializer } from './serialization';
 
 // Testing

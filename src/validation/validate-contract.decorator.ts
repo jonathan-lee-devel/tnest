@@ -1,6 +1,8 @@
 import { Inject } from '@nestjs/common';
 import { CONTRACT_VALIDATOR, type ContractValidator } from './validator.interface';
 
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call -- decorator internals require dynamic property access */
+
 export function ValidateContract(): MethodDecorator {
   const injectValidator = Inject(CONTRACT_VALIDATOR);
 
@@ -24,3 +26,5 @@ export function ValidateContract(): MethodDecorator {
     return descriptor;
   };
 }
+
+/* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call */

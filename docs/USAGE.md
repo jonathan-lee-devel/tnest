@@ -177,9 +177,7 @@ export class OrderService {
 
   async createOrder(userId: string) {
     // Type-safe: the compiler knows this takes { id: string } and returns User
-    const user = await firstValueFrom(
-      this.userClient.send('user.get', { id: userId }),
-    );
+    const user = await firstValueFrom(this.userClient.send('user.get', { id: userId }));
 
     // Type-safe: the compiler knows this takes UserCreatedPayload
     this.userClient.emit('user.created', {
@@ -313,9 +311,7 @@ import { CONTRACT_VALIDATOR } from '@jdevel/tnest';
 import { ZodContractValidator } from './zod-validator';
 
 @Module({
-  providers: [
-    { provide: CONTRACT_VALIDATOR, useClass: ZodContractValidator },
-  ],
+  providers: [{ provide: CONTRACT_VALIDATOR, useClass: ZodContractValidator }],
 })
 export class AppModule {}
 ```
@@ -405,9 +401,7 @@ describe('OrderService', () => {
     });
 
     // Use the mock client directly
-    const user = await firstValueFrom(
-      mockClient.send('user.get', { id: '42' }),
-    );
+    const user = await firstValueFrom(mockClient.send('user.get', { id: '42' }));
 
     expect(user.id).toBe('42');
     expect(mockClient.messages).toHaveLength(1);
@@ -436,11 +430,7 @@ describe('OrderService (integration)', () => {
     mockClient = new MockTypedClient<UserContracts>();
 
     const module = await Test.createTestingModule({
-      imports: [
-        TestContractModule.register([
-          { name: 'USER_SERVICE', mock: mockClient },
-        ]),
-      ],
+      imports: [TestContractModule.register([{ name: 'USER_SERVICE', mock: mockClient }])],
       providers: [OrderService],
     }).compile();
 
@@ -526,8 +516,15 @@ type JustCommands = CommandsOf<UserContracts>;
 // packages/contracts/src/user.contracts.ts
 import { defineRegistry, command, event, query } from '@jdevel/tnest';
 
-export interface CreateUserDto { email: string; name: string; }
-export interface User { id: string; email: string; name: string; }
+export interface CreateUserDto {
+  email: string;
+  name: string;
+}
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+}
 
 export const userContracts = defineRegistry({
   'user.create': command<CreateUserDto, User>(),

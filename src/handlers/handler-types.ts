@@ -11,7 +11,12 @@ import type {
 export type TypedMessageHandler<
   TRegistry extends ContractRegistry,
   P extends CommandPatterns<TRegistry> | QueryPatterns<TRegistry>,
-> = (payload: PayloadOf<TRegistry[P]>) => ResponseOf<TRegistry[P]> | Promise<ResponseOf<TRegistry[P]>> | Observable<ResponseOf<TRegistry[P]>>;
+> = (
+  payload: PayloadOf<TRegistry[P]>,
+) =>
+  | ResponseOf<TRegistry[P]>
+  | Promise<ResponseOf<TRegistry[P]>>
+  | Observable<ResponseOf<TRegistry[P]>>;
 
 export type TypedEventHandler<
   TRegistry extends ContractRegistry,

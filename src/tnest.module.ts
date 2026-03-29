@@ -1,4 +1,4 @@
-import { type DynamicModule, Module, type Provider } from '@nestjs/common';
+import { type DynamicModule, type FactoryProvider, Module, type Provider } from '@nestjs/common';
 import { ClientProxyFactory } from '@nestjs/microservices';
 import { TypedClientFactory } from './client';
 import { TNEST_OPTIONS, getClientToken } from './constants';
@@ -21,40 +21,40 @@ export class TnestModule {
         TypedClientFactory,
         ...clientProviders,
       ],
-      exports: [
-        TypedClientFactory,
-        ...clientProviders.map((p) => (p as any).provide),
-      ],
+      exports: [TypedClientFactory, ...clientProviders.map((p) => p.provide)],
     };
   }
 
   static forRootAsync(options: TnestModuleAsyncOptions): DynamicModule {
     const asyncProviders = TnestModule.createAsyncProviders(options);
-
-    const clientProviders: Provider[] = [
-      {
-        provide: 'TNEST_CLIENT_PROVIDERS',
-        useFactory: (tnestOptions: TnestModuleOptions) => {
-          return TnestModule.createClientProviders(tnestOptions);
-        },
-        inject: [TNEST_OPTIONS],
-      },
-    ];
+    const clientProviders = TnestModule.createAsyncClientProviders(options.clientNames ?? []);
 
     return {
       module: TnestModule,
       global: true,
       imports: options.imports ?? [],
-      providers: [
-        ...asyncProviders,
-        TypedClientFactory,
-        ...clientProviders,
-      ],
-      exports: [TypedClientFactory, TNEST_OPTIONS],
+      providers: [...asyncProviders, TypedClientFactory, ...clientProviders],
+      exports: [TypedClientFactory, TNEST_OPTIONS, ...clientProviders.map((p) => p.provide)],
     };
   }
 
-  private static createClientProviders(options: TnestModuleOptions): Provider[] {
+  private static createAsyncClientProviders(clientNames: string[]): FactoryProvider[] {
+    return clientNames.map((name) => ({
+      provide: getClientToken(name),
+      useFactory: (tnestOptions: TnestModuleOptions) => {
+        const clientDef = tnestOptions.clients?.find((c) => c.name === name);
+        if (!clientDef) {
+          throw new Error(
+            `TnestModule: client "${name}" was declared in clientNames but not found in resolved options.clients`,
+          );
+        }
+        return ClientProxyFactory.create(clientDef.options);
+      },
+      inject: [TNEST_OPTIONS],
+    }));
+  }
+
+  private static createClientProviders(options: TnestModuleOptions): FactoryProvider[] {
     if (!options.clients?.length) return [];
 
     return options.clients.map((clientDef) => ({
@@ -74,7 +74,12 @@ export class TnestModule {
       ];
     }
 
-    const useClass = (options.useClass ?? options.useExisting)!;
+    const useClass = options.useClass ?? options.useExisting;
+    if (!useClass) {
+      throw new Error(
+        'TnestModule.forRootAsync() requires one of: useFactory, useClass, or useExisting',
+      );
+    }
 
     const providers: Provider[] = [
       {
