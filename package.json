@@ -8,19 +8,26 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "./node_modules/.bin/tsc",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.0.0 || ^11.0.0",
+    "@nestjs/microservices": "^10.0.0 || ^11.0.0",
     "reflect-metadata": "^0.1.13 || ^0.2.0",
     "rxjs": "^7.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@nestjs/common": "^11.0.0",
+    "@nestjs/microservices": "^11.1.17",
+    "eslint": "^10.1.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.57.2"
   },
   "license": "MIT"
 }
