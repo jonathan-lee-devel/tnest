@@ -18,7 +18,9 @@ describe('ValidateContract', () => {
     }
 
     const handler = new TestHandler();
-    const result = await (handler.handle as unknown as (payload: unknown) => Promise<string>)('test-data');
+    const result = await (handler.handle as unknown as (payload: unknown) => Promise<string>)(
+      'test-data',
+    );
 
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(validator.validate).toHaveBeenCalledWith('test-data');
@@ -36,7 +38,9 @@ describe('ValidateContract', () => {
     }
 
     const handler = new TestHandler();
-    const result = await (handler.handle as unknown as (payload: unknown) => Promise<string>)('test-data');
+    const result = await (handler.handle as unknown as (payload: unknown) => Promise<string>)(
+      'test-data',
+    );
 
     expect(result).toBe('processed: test-data');
   });
@@ -76,7 +80,9 @@ describe('ValidateContract', () => {
     }
 
     const handler = new TestHandler();
-    const result = await (handler.handle as unknown as (payload: unknown) => Promise<string>)('sync-data');
+    const result = await (handler.handle as unknown as (payload: unknown) => Promise<string>)(
+      'sync-data',
+    );
 
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(validator.validate).toHaveBeenCalledWith('sync-data');
