@@ -17,7 +17,7 @@
     "format": "./node_modules/.bin/prettier --write .",
     "format:check": "./node_modules/.bin/prettier --check .",
     "prepublishOnly": "npm run build",
-    "prepare": "husky"
+    "prepare": "./node_modules/.bin/husky"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.0.0 || ^11.0.0",
