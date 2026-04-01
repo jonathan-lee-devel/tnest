@@ -259,23 +259,23 @@ this.users.send('user.created', { userId: '1', email: 'a@b.com' });
 //               ~~~~~~~~~~~~~~ ERROR: 'user.created' is an event, use emit()
 ```
 
-When using the second type parameter on handler decorators, the compiler also catches handler signature mismatches:
+The typed handler decorators also catch handler signature mismatches:
 
 ```ts
-@TypedMessagePattern<UserContracts, 'user.create'>('user.create')
+const MessagePattern = TypedMessagePattern<UserContracts>();
+
+@MessagePattern('user.create')
 async create(payload: { wrong: number }) {
   //                   ~~~~~~~~~~~~~~~~ ERROR: expects { email: string; name: string }
   return { id: '1' };
 }
 
-@TypedMessagePattern<UserContracts, 'user.get'>('user.get')
+@MessagePattern('user.get')
 async get(payload: { id: string }): Promise<{ wrong: boolean }> {
   //                                         ~~~~~~~~~~~~~~~~~ ERROR: must return User
   return { wrong: true };
 }
 ```
-
-> **Note:** Omitting the second type parameter preserves the existing behavior — the decorator validates the pattern string but does not constrain the method signature.
 
 ### 4. Handle messages (consumer)
 
@@ -287,21 +287,24 @@ import { Controller } from '@nestjs/common';
 import { TypedMessagePattern, TypedEventPattern } from '@jdevel/tnest';
 import type { UserContracts } from './contracts/user.contracts';
 
+// Bind the registry type once — pattern is specified only at the call site
+const MessagePattern = TypedMessagePattern<UserContracts>();
+const EventPattern = TypedEventPattern<UserContracts>();
+
 @Controller()
 export class UserController {
-  // Pass the pattern as a second type parameter to enforce the method signature.
-  // The compiler will error if the payload or return type doesn't match the contract.
-  @TypedMessagePattern<UserContracts, 'user.create'>('user.create')
+  // The compiler enforces that payload and return type match the contract
+  @MessagePattern('user.create')
   async create(payload: { email: string; name: string }) {
     return { id: crypto.randomUUID(), ...payload };
   }
 
-  @TypedMessagePattern<UserContracts, 'user.get'>('user.get')
+  @MessagePattern('user.get')
   async get(payload: { id: string }) {
     return { id: payload.id, email: 'user@example.com', name: 'Example' };
   }
 
-  @TypedEventPattern<UserContracts, 'user.created'>('user.created')
+  @EventPattern('user.created')
   async handleCreated(payload: { userId: string; email: string }) {
     console.log(`User created: ${payload.userId}`);
   }
@@ -414,7 +417,9 @@ class ZodValidator implements ContractValidator {
 { provide: CONTRACT_VALIDATOR, useClass: ZodValidator }
 
 // Apply to handlers — validation runs before the handler method
-@TypedMessagePattern<UserContracts, 'user.create'>('user.create')
+const MessagePattern = TypedMessagePattern<UserContracts>();
+
+@MessagePattern('user.create')
 @ValidateContract()
 async create(payload: CreateUserDto) {
   // payload has been validated at runtime
