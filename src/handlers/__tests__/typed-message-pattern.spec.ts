@@ -41,4 +41,47 @@ describe('TypedMessagePattern', () => {
 
     expect(metadata).toEqual(['user.get']);
   });
+
+  it('enforces method signature when pattern type parameter is provided', () => {
+    class TestHandler {
+      @TypedMessagePattern<TestRegistry, 'user.create'>('user.create')
+      handle(_payload: { name: string }): { id: string } {
+        return { id: '1' };
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method
+    const metadata = Reflect.getMetadata(PATTERN_METADATA, TestHandler.prototype.handle);
+
+    expect(metadata).toEqual(['user.create']);
+  });
+
+  it('enforces query method signature when pattern type parameter is provided', () => {
+    class TestHandler {
+      @TypedMessagePattern<TestRegistry, 'user.get'>('user.get')
+      handle(_payload: { id: string }): { name: string } {
+        return { name: 'Alice' };
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method
+    const metadata = Reflect.getMetadata(PATTERN_METADATA, TestHandler.prototype.handle);
+
+    expect(metadata).toEqual(['user.get']);
+  });
+
+  it('enforces async method signature when pattern type parameter is provided', () => {
+    class TestHandler {
+      @TypedMessagePattern<TestRegistry, 'user.create'>('user.create')
+      // eslint-disable-next-line @typescript-eslint/require-await
+      async handle(_payload: { name: string }): Promise<{ id: string }> {
+        return { id: '1' };
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method
+    const metadata = Reflect.getMetadata(PATTERN_METADATA, TestHandler.prototype.handle);
+
+    expect(metadata).toEqual(['user.create']);
+  });
 });

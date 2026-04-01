@@ -25,4 +25,32 @@ describe('TypedEventPattern', () => {
     expect(metadata).toEqual(['user.created']);
     expect(handlerType).toBe(2); // EventPattern = 2
   });
+
+  it('enforces method signature when pattern type parameter is provided', () => {
+    class TestHandler {
+      @TypedEventPattern<TestRegistry, 'user.created'>('user.created')
+      handle(_payload: { userId: string }): void {
+        // no-op
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method
+    const metadata = Reflect.getMetadata(PATTERN_METADATA, TestHandler.prototype.handle);
+
+    expect(metadata).toEqual(['user.created']);
+  });
+
+  it('enforces async method signature when pattern type parameter is provided', () => {
+    class TestHandler {
+      @TypedEventPattern<TestRegistry, 'user.created'>('user.created')
+      async handle(_payload: { userId: string }): Promise<void> {
+        // no-op
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method
+    const metadata = Reflect.getMetadata(PATTERN_METADATA, TestHandler.prototype.handle);
+
+    expect(metadata).toEqual(['user.created']);
+  });
 });

@@ -211,29 +211,31 @@ Use the typed decorators to enforce contracts on your message handlers.
 
 ### Commands and Queries
 
+Pass the pattern as a second type parameter to enforce the method's parameter and return types against the contract. The compiler will error if they don't match.
+
 ```ts
 // user.controller.ts
 import { Controller } from '@nestjs/common';
-import { TypedMessagePattern, type TypedMessageHandler } from '@jdevel/tnest';
+import { TypedMessagePattern } from '@jdevel/tnest';
 import type { UserContracts } from '../contracts/user.contracts';
 
 @Controller()
 export class UserController {
-  @TypedMessagePattern<UserContracts>('user.create')
-  async createUser(
-    // You can use the TypedMessageHandler type to enforce the full signature
-    ...[payload]: Parameters<TypedMessageHandler<UserContracts, 'user.create'>>
-  ) {
+  // The second type parameter enforces that payload is CreateUserDto and return is User
+  @TypedMessagePattern<UserContracts, 'user.create'>('user.create')
+  async createUser(payload: { email: string; name: string }) {
     const user = await this.userRepo.create(payload);
     return user; // Must return User (compiler enforces this)
   }
 
-  @TypedMessagePattern<UserContracts>('user.get')
+  @TypedMessagePattern<UserContracts, 'user.get'>('user.get')
   async getUser(payload: { id: string }) {
     return this.userRepo.findById(payload.id);
   }
 }
 ```
+
+> **Note:** Omitting the second type parameter (e.g., `@TypedMessagePattern<UserContracts>('user.create')`) preserves the existing behavior — the pattern string is validated but the method signature is not constrained.
 
 ### Events
 
@@ -245,10 +247,28 @@ import type { UserContracts } from '../contracts/user.contracts';
 
 @Controller()
 export class NotificationController {
-  @TypedEventPattern<UserContracts>('user.created')
+  @TypedEventPattern<UserContracts, 'user.created'>('user.created')
   async handleUserCreated(payload: { userId: string; email: string }) {
     await this.mailer.sendWelcome(payload.email);
   }
+}
+```
+
+### What the compiler catches (handlers)
+
+When the second type parameter is provided, the compiler catches handler signature mismatches:
+
+```ts
+@TypedMessagePattern<UserContracts, 'user.create'>('user.create')
+async create(payload: { wrong: number }) {
+  //                   ~~~~~~~~~~~~~~~~ ERROR: expects { email: string; name: string }
+  return { id: '1' };
+}
+
+@TypedMessagePattern<UserContracts, 'user.get'>('user.get')
+async get(payload: { id: string }): Promise<{ wrong: boolean }> {
+  //                                         ~~~~~~~~~~~~~~~~~ ERROR: must return User
+  return { wrong: true };
 }
 ```
 
@@ -323,7 +343,7 @@ import { ValidateContract, TypedMessagePattern } from '@jdevel/tnest';
 
 @Controller()
 export class UserController {
-  @TypedMessagePattern<UserContracts>('user.create')
+  @TypedMessagePattern<UserContracts, 'user.create'>('user.create')
   @ValidateContract()
   async createUser(payload: CreateUserDto) {
     // payload has been validated at runtime before reaching here
@@ -551,12 +571,12 @@ import type { UserContracts } from '@myorg/contracts';
 
 @Controller()
 export class UserController {
-  @TypedMessagePattern<UserContracts>('user.create')
+  @TypedMessagePattern<UserContracts, 'user.create'>('user.create')
   async create(payload: { email: string; name: string }) {
     return { id: crypto.randomUUID(), ...payload };
   }
 
-  @TypedMessagePattern<UserContracts>('user.get')
+  @TypedMessagePattern<UserContracts, 'user.get'>('user.get')
   async get(payload: { id: string }) {
     return { id: payload.id, email: 'user@example.com', name: 'Example' };
   }
