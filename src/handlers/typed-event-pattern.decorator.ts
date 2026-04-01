@@ -14,14 +14,11 @@ type EventMethodDecorator<
     | TypedPropertyDescriptor<(data: PayloadOf<TRegistry[P]>) => Promise<void>>,
 ) => void;
 
-export function TypedEventPattern<
-  TRegistry extends ContractRegistry,
-  P extends EventPatterns<TRegistry> = never,
->(
-  pattern: [P] extends [never] ? EventPatterns<TRegistry> : P,
-): [P] extends [never] ? MethodDecorator : EventMethodDecorator<TRegistry, P> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return EventPattern(pattern as string) as any;
+export function TypedEventPattern<TRegistry extends ContractRegistry>() {
+  return <P extends EventPatterns<TRegistry>>(pattern: P): EventMethodDecorator<TRegistry, P> => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return EventPattern(pattern as string) as any;
+  };
 }
 
 /* eslint-enable @typescript-eslint/no-explicit-any */

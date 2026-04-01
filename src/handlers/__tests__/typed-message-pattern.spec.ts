@@ -10,10 +10,12 @@ interface TestRegistry extends ContractRegistry {
   'user.get': Query<'user.get', { id: string }, { name: string }>;
 }
 
+const MessagePattern = TypedMessagePattern<TestRegistry>();
+
 describe('TypedMessagePattern', () => {
   it('applies @MessagePattern metadata with the given pattern', () => {
     class TestHandler {
-      @TypedMessagePattern<TestRegistry>('user.create')
+      @MessagePattern('user.create')
       handle(_payload: { name: string }): { id: string } {
         return { id: '1' };
       }
@@ -30,7 +32,7 @@ describe('TypedMessagePattern', () => {
 
   it('works with query patterns', () => {
     class TestHandler {
-      @TypedMessagePattern<TestRegistry>('user.get')
+      @MessagePattern('user.get')
       handle(_payload: { id: string }): { name: string } {
         return { name: 'Alice' };
       }
@@ -42,9 +44,9 @@ describe('TypedMessagePattern', () => {
     expect(metadata).toEqual(['user.get']);
   });
 
-  it('enforces method signature when pattern type parameter is provided', () => {
+  it('enforces method signature for command patterns', () => {
     class TestHandler {
-      @TypedMessagePattern<TestRegistry, 'user.create'>('user.create')
+      @MessagePattern('user.create')
       handle(_payload: { name: string }): { id: string } {
         return { id: '1' };
       }
@@ -56,9 +58,9 @@ describe('TypedMessagePattern', () => {
     expect(metadata).toEqual(['user.create']);
   });
 
-  it('enforces query method signature when pattern type parameter is provided', () => {
+  it('enforces method signature for query patterns', () => {
     class TestHandler {
-      @TypedMessagePattern<TestRegistry, 'user.get'>('user.get')
+      @MessagePattern('user.get')
       handle(_payload: { id: string }): { name: string } {
         return { name: 'Alice' };
       }
@@ -70,9 +72,9 @@ describe('TypedMessagePattern', () => {
     expect(metadata).toEqual(['user.get']);
   });
 
-  it('enforces async method signature when pattern type parameter is provided', () => {
+  it('enforces async method signature', () => {
     class TestHandler {
-      @TypedMessagePattern<TestRegistry, 'user.create'>('user.create')
+      @MessagePattern('user.create')
       // eslint-disable-next-line @typescript-eslint/require-await
       async handle(_payload: { name: string }): Promise<{ id: string }> {
         return { id: '1' };

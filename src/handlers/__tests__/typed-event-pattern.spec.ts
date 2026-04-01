@@ -8,10 +8,12 @@ interface TestRegistry extends ContractRegistry {
   'user.created': Event<'user.created', { userId: string }>;
 }
 
+const EventPatternDecorator = TypedEventPattern<TestRegistry>();
+
 describe('TypedEventPattern', () => {
   it('applies @EventPattern metadata with the given pattern', () => {
     class TestHandler {
-      @TypedEventPattern<TestRegistry>('user.created')
+      @EventPatternDecorator('user.created')
       handle(_payload: { userId: string }): void {
         // no-op
       }
@@ -26,9 +28,9 @@ describe('TypedEventPattern', () => {
     expect(handlerType).toBe(2); // EventPattern = 2
   });
 
-  it('enforces method signature when pattern type parameter is provided', () => {
+  it('enforces method signature', () => {
     class TestHandler {
-      @TypedEventPattern<TestRegistry, 'user.created'>('user.created')
+      @EventPatternDecorator('user.created')
       handle(_payload: { userId: string }): void {
         // no-op
       }
@@ -40,9 +42,9 @@ describe('TypedEventPattern', () => {
     expect(metadata).toEqual(['user.created']);
   });
 
-  it('enforces async method signature when pattern type parameter is provided', () => {
+  it('enforces async method signature', () => {
     class TestHandler {
-      @TypedEventPattern<TestRegistry, 'user.created'>('user.created')
+      @EventPatternDecorator('user.created')
       async handle(_payload: { userId: string }): Promise<void> {
         // no-op
       }

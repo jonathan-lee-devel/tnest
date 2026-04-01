@@ -24,14 +24,13 @@ type MessageMethodDecorator<
       >,
 ) => void;
 
-export function TypedMessagePattern<
-  TRegistry extends ContractRegistry,
-  P extends CommandPatterns<TRegistry> | QueryPatterns<TRegistry> = never,
->(
-  pattern: [P] extends [never] ? CommandPatterns<TRegistry> | QueryPatterns<TRegistry> : P,
-): [P] extends [never] ? MethodDecorator : MessageMethodDecorator<TRegistry, P> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return MessagePattern(pattern as string) as any;
+export function TypedMessagePattern<TRegistry extends ContractRegistry>() {
+  return <P extends CommandPatterns<TRegistry> | QueryPatterns<TRegistry>>(
+    pattern: P,
+  ): MessageMethodDecorator<TRegistry, P> => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return MessagePattern(pattern as string) as any;
+  };
 }
 
 /* eslint-enable @typescript-eslint/no-explicit-any */
