@@ -19,7 +19,9 @@ describe('TypedMessagePattern', () => {
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method
     const metadata = Reflect.getMetadata(PATTERN_METADATA, TestHandler.prototype.handle);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method
     const handlerType = Reflect.getMetadata(PATTERN_HANDLER_METADATA, TestHandler.prototype.handle);
 
     expect(metadata).toEqual(['user.create']);
@@ -34,6 +36,7 @@ describe('TypedMessagePattern', () => {
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method
     const metadata = Reflect.getMetadata(PATTERN_METADATA, TestHandler.prototype.handle);
 
     expect(metadata).toEqual(['user.get']);

@@ -16,12 +16,12 @@ type Client = TypedClient<TestRegistry>;
 
 describe('TypedClient type constraints', () => {
   it('send() returns Observable of correct response type for command', () => {
-    expectTypeOf<Client['send']>().parameter(0).toMatchTypeOf<'user.create' | 'user.get'>();
+    expectTypeOf<Client['send']>().parameter(0).toExtend<'user.create' | 'user.get'>();
   });
 
   it('send() infers response type from pattern', () => {
     type SendReturn = ReturnType<Client['send']>;
-    expectTypeOf<SendReturn>().toMatchTypeOf<Observable<unknown>>();
+    expectTypeOf<SendReturn>().toExtend<Observable<unknown>>();
   });
 
   it('emit() accepts only event patterns', () => {

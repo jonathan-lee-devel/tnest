@@ -39,6 +39,7 @@ describe('TypedClient', () => {
 
       const result = await firstValueFrom(client.send('user.create', payload));
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockProxy.send).toHaveBeenCalledWith('user.create', payload);
       expect(result).toEqual(response);
     });
@@ -50,6 +51,7 @@ describe('TypedClient', () => {
 
       const result = await firstValueFrom(client.send('user.get', payload));
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockProxy.send).toHaveBeenCalledWith('user.get', payload);
       expect(result).toEqual(response);
     });
@@ -61,6 +63,7 @@ describe('TypedClient', () => {
 
       await firstValueFrom(client.emit('user.created', payload));
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockProxy.emit).toHaveBeenCalledWith('user.created', payload);
     });
   });
@@ -68,6 +71,7 @@ describe('TypedClient', () => {
   describe('connect()', () => {
     it('delegates to ClientProxy.connect()', async () => {
       await client.connect();
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockProxy.connect).toHaveBeenCalled();
     });
   });
@@ -75,6 +79,7 @@ describe('TypedClient', () => {
   describe('close()', () => {
     it('delegates to ClientProxy.close()', () => {
       client.close();
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockProxy.close).toHaveBeenCalled();
     });
   });

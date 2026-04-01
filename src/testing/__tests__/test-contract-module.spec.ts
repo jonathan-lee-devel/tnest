@@ -23,7 +23,7 @@ describe('TestContractModule', () => {
     }).compile();
 
     const token = getClientToken('TEST_SERVICE');
-    const resolved = module.get(token);
+    const resolved = module.get<unknown>(token);
     expect(resolved).toBe(mockClient);
   });
 

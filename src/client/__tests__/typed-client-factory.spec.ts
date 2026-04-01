@@ -1,5 +1,6 @@
 import { of } from 'rxjs';
-import { ClientProxy, ClientProxyFactory } from '@nestjs/microservices';
+import type { ClientProxy } from '@nestjs/microservices';
+import { ClientProxyFactory } from '@nestjs/microservices';
 import { TypedClientFactory } from '../typed-client-factory';
 import { TypedClient } from '../typed-client';
 import type { Command } from '../../contracts/command';
@@ -41,6 +42,7 @@ describe('TypedClientFactory', () => {
 
     const client = factory.create<TestRegistry>({ transport: 0 });
 
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(ClientProxyFactory.create).toHaveBeenCalledWith({ transport: 0 });
     expect(client).toBeInstanceOf(TypedClient);
   });

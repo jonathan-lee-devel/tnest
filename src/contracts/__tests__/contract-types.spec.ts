@@ -148,8 +148,8 @@ describe('ValidateRegistry', () => {
 
 describe('AnyContract', () => {
   it('accepts Command, Event, and Query', () => {
-    expectTypeOf<Command<'a', string, number>>().toMatchTypeOf<AnyContract>();
-    expectTypeOf<Event<'b', string>>().toMatchTypeOf<AnyContract>();
-    expectTypeOf<Query<'c', string, number>>().toMatchTypeOf<AnyContract>();
+    expectTypeOf<Command<'a', string, number>>().toExtend<AnyContract>();
+    expectTypeOf<Event<'b', string>>().toExtend<AnyContract>();
+    expectTypeOf<Query<'c', string, number>>().toExtend<AnyContract>();
   });
 });

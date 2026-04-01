@@ -21,7 +21,7 @@ describe('TnestModule', () => {
         imports: [TnestModule.forRoot(options)],
       }).compile();
 
-      const resolved = module.get(TNEST_OPTIONS);
+      const resolved = module.get<TnestModuleOptions>(TNEST_OPTIONS);
       expect(resolved).toBe(options);
     });
 
@@ -35,7 +35,7 @@ describe('TnestModule', () => {
       }).compile();
 
       const token = getClientToken('USER_SERVICE');
-      const client = module.get(token);
+      const client = module.get<unknown>(token);
       expect(client).toBeDefined();
     });
   });
@@ -64,7 +64,7 @@ describe('TnestModule', () => {
         ],
       }).compile();
 
-      const resolved = module.get(TNEST_OPTIONS);
+      const resolved = module.get<TnestModuleOptions>(TNEST_OPTIONS);
       expect(resolved).toBe(options);
     });
 
@@ -81,7 +81,7 @@ describe('TnestModule', () => {
       }).compile();
 
       const token = getClientToken('USER_SERVICE');
-      const client = module.get(token);
+      const client = module.get<unknown>(token);
       expect(client).toBeDefined();
     });
 
