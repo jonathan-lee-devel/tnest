@@ -16,4 +16,5 @@ export type {
   EventPatterns,
   QueryPatterns,
   SendablePatterns,
+  HttpResponse,
 } from './utility-types';

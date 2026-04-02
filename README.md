@@ -456,6 +456,34 @@ class MsgpackSerializer implements PayloadSerializer, PayloadDeserializer {
 
 A `DefaultPayloadSerializer` (pass-through) is included and used when no custom serializer is registered.
 
+## Wrapping Responses with HTTP Status
+
+Use the `HttpResponse<T>` utility type to wrap command or query responses with an `HttpStatus` code from `@nestjs/common`:
+
+```ts
+import { defineRegistry, command, query } from '@jdevel/tnest';
+import type { HttpResponse } from '@jdevel/tnest';
+
+export const userContracts = defineRegistry({
+  'user.create': command<CreateUserDto, HttpResponse<User>>(),
+  'user.get': query<{ id: string }, HttpResponse<User>>(),
+});
+```
+
+Handlers then return the wrapped shape:
+
+```ts
+import { HttpStatus } from '@nestjs/common';
+
+@MessagePattern('user.create')
+async create(payload: { email: string; name: string }) {
+  const user = await this.userRepo.create(payload);
+  return { status: HttpStatus.CREATED, data: user };
+}
+```
+
+The response type is `{ status: HttpStatus; data: T }`.
+
 ## Utility Types
 
 Extract type information from your contract registry:
@@ -465,6 +493,7 @@ import type {
   PatternOf,
   PayloadOf,
   ResponseOf,
+  HttpResponse,
   CommandPatterns,
   EventPatterns,
   QueryPatterns,
@@ -514,6 +543,7 @@ type Validated = ValidateRegistry<UserContracts>;
 | `Command` / `Event` / `Query`                         | Type      | Contract type interfaces                            |
 | `ContractRegistry`                                    | Type      | Base type for a registry of contracts               |
 | `ValidateRegistry`                                    | Type      | Validates registry keys match contract patterns     |
+| `HttpResponse`                                        | Type      | Wraps a response with `HttpStatus`                  |
 | `PayloadOf` / `ResponseOf` / `PatternOf`              | Type      | Extract parts of a contract                         |
 | `CommandsOf` / `EventsOf` / `QueriesOf`               | Type      | Filter registry by contract kind                    |
 | `CommandPatterns` / `EventPatterns` / `QueryPatterns` | Type      | Pattern string unions by kind                       |

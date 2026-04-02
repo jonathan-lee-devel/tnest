@@ -485,7 +485,54 @@ describe('OrderService (integration)', () => {
 
 ---
 
-## 8. Utility Types Reference
+## 8. Wrapping Responses with HTTP Status (Optional)
+
+Use the `HttpResponse<T>` utility type to wrap command or query responses with an `HttpStatus` code from `@nestjs/common`. This is useful when consumers need to know the outcome status alongside the data.
+
+### Define contracts with `HttpResponse`
+
+```ts
+import { defineRegistry, command, query } from '@jdevel/tnest';
+import type { HttpResponse } from '@jdevel/tnest';
+
+export const userContracts = defineRegistry({
+  'user.create': command<CreateUserDto, HttpResponse<User>>(),
+  'user.get': query<{ id: string }, HttpResponse<User>>(),
+});
+
+export type UserContracts = typeof userContracts;
+```
+
+### Return wrapped responses from handlers
+
+```ts
+import { HttpStatus } from '@nestjs/common';
+import { TypedMessagePattern } from '@jdevel/tnest';
+import type { UserContracts } from '../contracts/user.contracts';
+
+const MessagePattern = TypedMessagePattern<UserContracts>();
+
+@Controller()
+export class UserController {
+  @MessagePattern('user.create')
+  async create(payload: { email: string; name: string }) {
+    const user = await this.userRepo.create(payload);
+    return { status: HttpStatus.CREATED, data: user };
+  }
+
+  @MessagePattern('user.get')
+  async get(payload: { id: string }) {
+    const user = await this.userRepo.findById(payload.id);
+    return { status: HttpStatus.OK, data: user };
+  }
+}
+```
+
+The response shape is `{ status: HttpStatus; data: T }` — the compiler enforces both the `status` and `data` fields.
+
+---
+
+## 9. Utility Types Reference
 
 Extract type information from your contracts:
 
@@ -494,6 +541,7 @@ import type {
   PatternOf,
   PayloadOf,
   ResponseOf,
+  HttpResponse,
   CommandsOf,
   EventsOf,
   QueriesOf,

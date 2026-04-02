@@ -22,6 +22,7 @@ export type {
   EventPatterns,
   QueryPatterns,
   SendablePatterns,
+  HttpResponse,
 } from './contracts';
 export { command, event, query, defineRegistry } from './contracts';
 

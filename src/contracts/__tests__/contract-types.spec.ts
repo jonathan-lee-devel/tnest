@@ -2,8 +2,10 @@ import { expectTypeOf } from 'expect-type';
 import type { Command } from '../command';
 import type { Event } from '../event';
 import type { Query } from '../query';
+import type { HttpStatus } from '@nestjs/common';
 import type {
   AnyContract,
+  HttpResponse,
   PatternOf,
   PayloadOf,
   ResponseOf,
@@ -143,6 +145,22 @@ describe('ValidateRegistry', () => {
     expectTypeOf<Valid['user.create']>().toEqualTypeOf<TestRegistry['user.create']>();
     expectTypeOf<Valid['user.created']>().toEqualTypeOf<TestRegistry['user.created']>();
     expectTypeOf<Valid['user.get']>().toEqualTypeOf<TestRegistry['user.get']>();
+  });
+});
+
+describe('HttpResponse', () => {
+  it('wraps a type with status and data fields', () => {
+    expectTypeOf<HttpResponse<User>>().toEqualTypeOf<{ status: HttpStatus; data: User }>();
+  });
+
+  it('works as a command response type', () => {
+    type C = Command<'test', string, HttpResponse<User>>;
+    expectTypeOf<ResponseOf<C>>().toEqualTypeOf<HttpResponse<User>>();
+  });
+
+  it('works as a query response type', () => {
+    type Q = Query<'test', string, HttpResponse<User[]>>;
+    expectTypeOf<ResponseOf<Q>>().toEqualTypeOf<HttpResponse<User[]>>();
   });
 });
 
