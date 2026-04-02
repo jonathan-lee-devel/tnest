@@ -1,6 +1,6 @@
 {
   "name": "@jdevel/tnest",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Type-safe communication between NestJS microservices via shared contracts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
