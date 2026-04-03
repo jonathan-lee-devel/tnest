@@ -150,7 +150,7 @@ describe('ValidateRegistry', () => {
 
 describe('HttpResponse', () => {
   it('wraps a type with status and data fields', () => {
-    expectTypeOf<HttpResponse<User>>().toEqualTypeOf<{ status: HttpStatus; data: User }>();
+    expectTypeOf<HttpResponse<User>>().toEqualTypeOf<{ status: HttpStatus; data?: User }>();
   });
 
   it('works as a command response type', () => {

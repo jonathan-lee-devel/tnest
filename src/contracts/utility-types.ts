@@ -6,7 +6,7 @@ import type { Query } from './query';
 
 export interface HttpResponse<T> {
   status: HttpStatus;
-  data: T;
+  data?: T;
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- `any` is required in conditional/mapped type positions to match all instantiations */
