@@ -63,10 +63,10 @@ export class TnestModule {
    * and have their underlying `ClientProxy` tokens registered automatically.
    */
   private static resolveClientNames(
-    clientNames: string[] | undefined,
+    clientNames: (string | symbol)[] | undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- registry generic is irrelevant at the token level
     typedClients: TypedClientClass<any>[],
-  ): string[] {
+  ): (string | symbol)[] {
     return Array.from(new Set([...(clientNames ?? []), ...typedClients.map((c) => c.clientName)]));
   }
 
@@ -86,14 +86,14 @@ export class TnestModule {
     }));
   }
 
-  private static createAsyncClientProviders(clientNames: string[]): FactoryProvider[] {
+  private static createAsyncClientProviders(clientNames: (string | symbol)[]): FactoryProvider[] {
     return clientNames.map((name) => ({
       provide: getClientToken(name),
       useFactory: (tnestOptions: TnestModuleOptions) => {
         const clientDef = tnestOptions.clients?.find((c) => c.name === name);
         if (!clientDef) {
           throw new Error(
-            `TnestModule: client "${name}" was declared in clientNames but not found in resolved options.clients`,
+            `TnestModule: client "${String(name)}" was declared in clientNames but not found in resolved options.clients`,
           );
         }
         return ClientProxyFactory.create(clientDef.options);

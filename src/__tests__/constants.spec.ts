@@ -19,4 +19,10 @@ describe('getClientToken()', () => {
   it('returns different tokens for different names', () => {
     expect(getClientToken('A')).not.toBe(getClientToken('B'));
   });
+
+  it('accepts symbol names without throwing and derives a stable token', () => {
+    const sym = Symbol('USER_SERVICE');
+    expect(getClientToken(sym)).toBe(`${TNEST_CLIENT_PREFIX}Symbol(USER_SERVICE)`);
+    expect(getClientToken(sym)).toBe(getClientToken(sym));
+  });
 });

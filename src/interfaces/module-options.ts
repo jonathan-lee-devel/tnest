@@ -29,7 +29,7 @@ export interface TnestModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'>
    * Each name will be resolvable via `getClientToken(name)` once the async options resolve.
    * Required when your factory provides `clients` and you need to inject them by token.
    */
-  clientNames?: string[];
+  clientNames?: symbol[] | string[];
   /**
    * Typed client classes (minted via `TypedClientRef`) to auto-register as
    * injectable providers. Their static `clientName` is also used to register
