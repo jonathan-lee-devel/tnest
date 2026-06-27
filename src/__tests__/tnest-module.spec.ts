@@ -1,8 +1,18 @@
+import { Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { TnestModule } from '../tnest.module';
-import { TypedClientFactory } from '../client';
+import { TypedClient, TypedClientFactory, TypedClientRef } from '../client';
 import { TNEST_OPTIONS, getClientToken } from '../constants';
+import type { ContractRegistry } from '../contracts';
 import type { TnestModuleOptions } from '../interfaces';
+
+type UsersRegistry = ContractRegistry;
+class UsersClient extends TypedClientRef<UsersRegistry>('USER_SERVICE') {}
+
+@Injectable()
+class UsersConsumer {
+  constructor(readonly users: UsersClient) {}
+}
 
 describe('TnestModule', () => {
   describe('forRoot()', () => {
@@ -37,6 +47,22 @@ describe('TnestModule', () => {
       const token = getClientToken('USER_SERVICE');
       const client = module.get<unknown>(token);
       expect(client).toBeDefined();
+    });
+
+    it('auto-registers typed client classes injectable by type (no @Inject)', async () => {
+      const module = await Test.createTestingModule({
+        imports: [
+          TnestModule.forRoot({
+            clients: [{ name: 'USER_SERVICE', options: { transport: 0 } }],
+            typedClients: [UsersClient],
+          }),
+        ],
+        providers: [UsersConsumer],
+      }).compile();
+
+      const consumer = module.get(UsersConsumer);
+      expect(consumer.users).toBeInstanceOf(UsersClient);
+      expect(consumer.users).toBeInstanceOf(TypedClient);
     });
   });
 
@@ -96,6 +122,26 @@ describe('TnestModule', () => {
           ],
         }).compile(),
       ).rejects.toThrow(/client "MISSING_SERVICE" was declared in clientNames but not found/);
+    });
+
+    it('derives the underlying client name from typedClients (clientNames optional)', async () => {
+      const module = await Test.createTestingModule({
+        imports: [
+          TnestModule.forRootAsync({
+            typedClients: [UsersClient],
+            useFactory: () => ({
+              clients: [{ name: 'USER_SERVICE', options: { transport: 0 } }],
+            }),
+          }),
+        ],
+        providers: [UsersConsumer],
+      }).compile();
+
+      // ClientProxy token registered without an explicit clientNames entry.
+      expect(module.get<unknown>(getClientToken('USER_SERVICE'))).toBeDefined();
+
+      const consumer = module.get(UsersConsumer);
+      expect(consumer.users).toBeInstanceOf(UsersClient);
     });
   });
 });

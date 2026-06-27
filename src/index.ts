@@ -29,6 +29,8 @@ export { command, event, query, defineRegistry } from './contracts';
 // Client
 export { TypedClient } from './client';
 export { TypedClientFactory } from './client';
+export { TypedClientRef } from './client';
+export type { TypedClientClass } from './client';
 
 // Handlers
 export { TypedMessagePattern } from './handlers';

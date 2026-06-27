@@ -246,6 +246,58 @@ export class OrderService {
 }
 ```
 
+#### Injecting clients by type (no boilerplate, no `@Inject`)
+
+The manual `factory.create(...)` wiring above is fine, but it means writing a
+provider per client and decorating every injection with `@Inject(...)`. Instead,
+mint a dedicated client class with `TypedClientRef` and let `TnestModule`
+register it for you.
+
+Declare one class per microservice (this doubles as the type **and** the DI token):
+
+```ts
+// users.client.ts
+import { TypedClientRef } from '@jdevel/tnest';
+import type { UserContracts } from './contracts/user.contracts';
+
+export class UsersClient extends TypedClientRef<UserContracts>('USER_SERVICE') {}
+```
+
+Hand it to the module via `typedClients` — the underlying `ClientProxy` is wired
+automatically, and the class is exported globally:
+
+```ts
+TnestModule.forRootAsync({
+  imports: [ConfigModule],
+  inject: [ConfigService],
+  // `clientNames` is derived from the typed clients' names, so it's optional here
+  typedClients: [UsersClient],
+  useFactory: (config: ConfigService) => ({
+    clients: [{ name: 'USER_SERVICE', options: /* ...transport options... */ }],
+  }),
+});
+```
+
+Now inject it by type anywhere — no provider, no `@Inject`:
+
+```ts
+@Injectable()
+export class OrderService {
+  constructor(private readonly users: UsersClient) {}
+
+  async createOrder(userId: string) {
+    const user = await firstValueFrom(this.users.send('user.get', { id: userId }));
+    return { orderId: '123', user };
+  }
+}
+```
+
+> Each `TypedClientRef(...)` call mints a **distinct runtime class**. This is what
+> lets NestJS resolve different clients by type — `TypedClient<A>` and
+> `TypedClient<B>` are identical at runtime once generics are erased, so a shared
+> class could not be told apart. Import the client class with a regular `import`
+> (not `import type`); it must survive to runtime to act as the injection token.
+
 The compiler catches contract violations:
 
 ```ts
@@ -532,6 +584,8 @@ type Validated = ValidateRegistry<UserContracts>;
 | `TnestModule`                                         | Module    | Dynamic module with `forRoot` / `forRootAsync`      |
 | `TypedClient`                                         | Class     | Type-safe wrapper around `ClientProxy`              |
 | `TypedClientFactory`                                  | Service   | Creates `TypedClient` instances                     |
+| `TypedClientRef`                                      | Function  | Mints an injectable, type-resolvable client class   |
+| `TypedClientClass`                                    | Type      | A class minted by `TypedClientRef`                  |
 | `TypedMessagePattern`                                 | Decorator | Typed `@MessagePattern` for commands/queries        |
 | `TypedEventPattern`                                   | Decorator | Typed `@EventPattern` for events                    |
 | `ValidateContract`                                    | Decorator | Opt-in runtime payload validation                   |
