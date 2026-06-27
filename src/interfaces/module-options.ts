@@ -3,7 +3,7 @@ import type { ClientOptions } from '@nestjs/microservices';
 import type { TypedClientClass } from '../client';
 
 export interface TnestClientDefinition {
-  name: string;
+  name: string | symbol;
   options: ClientOptions;
 }
 
